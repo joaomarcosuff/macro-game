@@ -129,17 +129,31 @@
             </div>
 
             <div id="p1-question-container" class="flex-grow flex flex-col justify-center">
-                <div class="mb-6">
-                    <span id="p1-topic" class="inline-block px-3 py-1 bg-indigo-50 text-brand-primary text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Tópico</span>
-                    <h4 id="p1-question" class="text-xl md:text-2xl font-bold text-slate-800 leading-snug">Carregando pergunta...</h4>
+                <div class="mb-4 flex items-start justify-between">
+                    <div>
+                        <span id="p1-topic" class="inline-block px-3 py-1 bg-indigo-50 text-brand-primary text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Tópico</span>
+                        <h4 id="p1-question" class="text-xl md:text-2xl font-bold text-slate-800 leading-snug">Carregando pergunta...</h4>
+                    </div>
+                    <!-- Botão Lâmpada (Dica) -->
+                    <button id="p1-hint-btn" onclick="showP1Hint()" class="ml-4 p-3 bg-yellow-100 text-yellow-600 rounded-full hover:bg-yellow-200 transition shadow-sm" title="Ver Dica">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Área da Dica (Inicialmente oculta) -->
+                <div id="p1-hint-box" class="hidden mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg text-sm text-yellow-800 font-medium animate-slide-up">
+                    <span class="font-bold uppercase text-xs block mb-1">💡 Dica do Manual:</span>
+                    <span id="p1-hint-text"></span>
                 </div>
                 
                 <div id="p1-options" class="space-y-3">
                     <!-- Opções -->
                 </div>
 
-                <div id="p1-feedback" class="hidden mt-6 p-5 bg-slate-50 rounded-xl border-l-4 border-brand-primary animate-pulse-fast shadow-inner">
-                    <p id="p1-feedback-text" class="font-medium text-slate-700 text-lg"></p>
+                <div id="p1-feedback" class="hidden mt-6 p-5 bg-slate-50 rounded-xl border-l-4 animate-pulse-fast shadow-inner">
+                    <p id="p1-feedback-text" class="font-medium text-lg"></p>
                     <div class="mt-4 flex justify-end">
                         <button onclick="nextP1Question()" class="bg-brand-primary text-white px-8 py-2 rounded-lg font-bold text-sm hover:bg-indigo-700 transition shadow-lg">Continuar ➜</button>
                     </div>
@@ -228,13 +242,24 @@
                         <span id="p2-step-indicator" class="text-xs font-bold bg-slate-100 text-slate-500 px-3 py-1 rounded-full">Passo 1/3</span>
                     </div>
                     
-                    <h4 id="p2-question" class="font-bold text-slate-800 text-xl mb-6 flex-grow leading-snug">Carregando cenário...</h4>
+                    <div class="flex items-start justify-between mb-4">
+                        <h4 id="p2-question" class="font-bold text-slate-800 text-xl flex-grow leading-snug">Carregando cenário...</h4>
+                        <!-- Botão Dica P2 -->
+                        <button id="p2-hint-btn" onclick="showP2Hint()" class="ml-2 p-2 bg-yellow-100 text-yellow-600 rounded-full hover:bg-yellow-200 transition shadow-sm flex-shrink-0" title="Dica">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+                        </button>
+                    </div>
+
+                    <!-- Dica P2 -->
+                    <div id="p2-hint-box" class="hidden mb-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg text-xs text-yellow-800 font-medium">
+                        <span id="p2-hint-text"></span>
+                    </div>
                     
                     <div id="p2-options" class="space-y-3 mb-4">
                         <!-- Options generated here -->
                     </div>
                     
-                    <div id="p2-feedback" class="hidden p-4 bg-slate-50 rounded-xl text-sm border-l-4 border-slate-300 animate-slide-up">
+                    <div id="p2-feedback" class="hidden p-4 bg-slate-50 rounded-xl text-sm border-l-4 animate-slide-up">
                         <p id="p2-feedback-text" class="font-bold mb-3 text-base"></p>
                         
                         <div class="flex gap-2">
@@ -292,62 +317,68 @@
             {
                 topic: "1. Contabilidade Nacional (Identidades)",
                 question: "Pela identidade da renda nacional em economia aberta, o Investimento (I) é financiado por quais componentes?",
+                hint: "Lembre-se da identidade fundamental: S = I + CC. Quem compõe a poupança 'S'?",
                 options: [
                     { text: "Poupança Privada + Poupança do Governo + Poupança Externa", correct: true },
                     { text: "Consumo das Famílias + Gastos do Governo", correct: false },
                     { text: "Apenas pela Poupança Interna (S)", correct: false }
                 ],
-                explanation: "Correto! S_nac + S_ext = I. O investimento depende da poupança interna (privada e pública) e do déficit em conta corrente (poupança externa)."
+                explanation: "O investimento (I) é financiado pela Poupança Nacional (S_priv + S_gov) somada à Poupança Externa (Déficit em Transações Correntes)."
             },
             {
                 topic: "1. Contabilidade Nacional (PIB vs PNB)",
                 question: "Se o Brasil possui um PIB de R$ 10 trilhões e um PNB de R$ 9,8 trilhões, o que isso indica sobre as relações externas?",
+                hint: "PNB = PIB + Renda Líquida Recebida do Exterior. Se PNB é menor, o termo Renda Líquida é positivo ou negativo?",
                 options: [
                     { text: "O país é um remetedor líquido de renda ao exterior (RLR < 0).", correct: true },
                     { text: "O país é um receptor líquido de renda do exterior.", correct: false },
                     { text: "A Balança Comercial é necessariamente deficitária.", correct: false }
                 ],
-                explanation: "Exato! PNB = PIB + Renda Líquida Recebida. Se PNB < PIB, enviamos mais renda (juros/lucros) do que recebemos."
+                explanation: "PNB < PIB significa que o país envia mais renda (juros, lucros, dividendos) para o exterior do que recebe."
             },
             {
                 topic: "1. Balanço de Pagamentos (Conceito)",
                 question: "O Balanço de Pagamentos é um registro contábil. Se houver um déficit em Transações Correntes, como ele deve ser financiado contabilmente (excluindo Erros e Omissões)?",
+                hint: "O BP sempre zera (BP = TC + KF + Var.Reservas = 0). Se TC é negativo, quem tem que ser positivo?",
                 options: [
                     { text: "Pelo superávit na Conta Financeira e/ou uso de Reservas.", correct: true },
                     { text: "Pelo aumento das Exportações no curto prazo.", correct: false },
                     { text: "Pela redução imediata da inflação.", correct: false }
                 ],
-                explanation: "Perfeito. O BP sempre fecha em zero. Um déficit corrente deve ser coberto por entrada de capitais ou perda de reservas."
+                explanation: "Contabilmente, um déficit em conta corrente deve ser coberto por entrada de capitais (superávit financeiro) ou perda de reservas internacionais."
             },
             {
                 topic: "1. Abordagem da Absorção",
                 question: "Definindo Absorção Interna (A) como C + I + G. Se a economia gasta mais do que produz (A > Y), qual é o resultado inevitável no setor externo?",
+                hint: "A identidade básica é Y - A = NX. Se A é maior que Y, qual o sinal de NX?",
                 options: [
                     { text: "Déficit na Balança Comercial (NX < 0).", correct: true },
                     { text: "Superávit na Balança Comercial (NX > 0).", correct: false },
                     { text: "Aumento da Taxa de Juros.", correct: false }
                 ],
-                explanation: "Correto. Y - A = NX. Se A > Y, então NX deve ser negativo (Importações > Exportações)."
+                explanation: "Se a absorção interna supera a produção (Y), a diferença deve ser importada, gerando déficit comercial (NX negativo)."
             },
             {
                 topic: "2. Sistema Monetário (Instrumentos)",
                 question: "O Banco Central quer conter uma demanda aquecida. Qual instrumento de política monetária contracionista ele deve usar?",
+                hint: "Política contracionista visa reduzir a liquidez (tirar dinheiro do mercado). Vender algo tira dinheiro de quem compra.",
                 options: [
                     { text: "Vender Títulos Públicos no Open Market.", correct: true },
                     { text: "Reduzir a taxa de Redesconto.", correct: false },
                     { text: "Comprar dólares no mercado cambial.", correct: false }
                 ],
-                explanation: "Isso aí. Ao vender títulos, o BC retira dinheiro de circulação (enxuga a liquidez), elevando os juros."
+                explanation: "Ao vender títulos, o BC recolhe dinheiro do mercado, reduzindo a base monetária e elevando os juros."
             },
             {
-                topic: "2. Sistema Monetário (Multiplicador)",
-                question: "O que acontece com o Multiplicador Bancário se o público decidir manter mais dinheiro em espécie (papel-moeda) em vez de depósitos?",
+                topic: "2. Sistema Monetário (Agregados)",
+                question: "Qual dos agregados monetários abaixo possui a maior liquidez (facilidade de uso imediato)?",
+                hint: "Pense no dinheiro que está no seu bolso ou na conta corrente vs. investimentos de longo prazo.",
                 options: [
-                    { text: "O multiplicador diminui, reduzindo a oferta de moeda.", correct: true },
-                    { text: "O multiplicador aumenta, pois os bancos têm mais reservas.", correct: false },
-                    { text: "Não há alteração na oferta monetária.", correct: false }
+                    { text: "M1 (Papel-moeda em poder do público + Depósitos à vista)", correct: true },
+                    { text: "M2 (M1 + Depósitos de poupança e Títulos privados)", correct: false },
+                    { text: "M4 (M3 + Títulos públicos de alta liquidez)", correct: false }
                 ],
-                explanation: "Exato. Se o dinheiro sai dos bancos (vazamento), a capacidade de criação de moeda escritural (empréstimos) diminui."
+                explanation: "M1 é o agregado de liquidez absoluta: dinheiro em espécie e depósitos em conta corrente que podem ser usados instantaneamente."
             }
         ];
 
@@ -366,7 +397,6 @@
             const screens = document.querySelectorAll('[id^="screen-"]');
             screens.forEach(s => s.classList.add('hidden'));
             
-            // Critical fix: Ensure flex is removed when hiding so it doesn't conflict with 'hidden'
             const gameScreen = document.getElementById('screen-phase2-game');
             gameScreen.classList.remove('flex');
             gameScreen.classList.add('hidden');
@@ -403,7 +433,12 @@
             document.getElementById('p1-topic').innerText = q.topic;
             document.getElementById('p1-question').innerText = q.question;
             document.getElementById('p1-current').innerText = p1Index + 1;
+            
+            // Reset UI elements
             document.getElementById('p1-feedback').classList.add('hidden');
+            document.getElementById('p1-feedback').className = "hidden mt-6 p-5 bg-slate-50 rounded-xl border-l-4 animate-pulse-fast shadow-inner"; // Reset classes
+            document.getElementById('p1-hint-box').classList.add('hidden');
+            document.getElementById('p1-hint-text').innerText = q.hint || "Sem dica disponível.";
             
             const div = document.getElementById('p1-options');
             div.innerHTML = '';
@@ -417,6 +452,11 @@
             });
         }
 
+        function showP1Hint() {
+            const box = document.getElementById('p1-hint-box');
+            box.classList.remove('hidden');
+        }
+
         function checkP1Answer(opt, btn, q) {
             const btns = document.getElementById('p1-options').querySelectorAll('button');
             btns.forEach(b => b.disabled = true);
@@ -424,6 +464,9 @@
             const feedbackDiv = document.getElementById('p1-feedback');
             const feedbackText = document.getElementById('p1-feedback-text');
             feedbackDiv.classList.remove('hidden');
+
+            // Reset classes
+            feedbackDiv.classList.remove('border-brand-success', 'border-red-500');
 
             if(opt.correct) {
                 p1Score++;
@@ -514,7 +557,14 @@
             
             document.getElementById('p2-step-indicator').innerText = `Passo ${p2Index + 1}/${simulationSteps.length}`;
             document.getElementById('p2-question').innerText = step.question;
+            
+            // Reset UI
             document.getElementById('p2-feedback').classList.add('hidden');
+            document.getElementById('p2-feedback').classList.remove('border-brand-success', 'border-red-500'); 
+            
+            document.getElementById('p2-hint-box').classList.add('hidden');
+            document.getElementById('p2-hint-text').innerText = step.hint || "Observe o gráfico e a relação das curvas.";
+            
             document.getElementById('graph-status').innerText = "Aguardando resposta...";
 
             const div = document.getElementById('p2-options');
@@ -529,6 +579,10 @@
             });
         }
 
+        function showP2Hint() {
+            document.getElementById('p2-hint-box').classList.remove('hidden');
+        }
+
         function checkP2Answer(opt, btn) {
             const btns = document.getElementById('p2-options').querySelectorAll('button');
             btns.forEach(b => b.disabled = true);
@@ -536,16 +590,18 @@
             const feedback = document.getElementById('p2-feedback');
             feedback.classList.remove('hidden');
             
+            feedback.classList.remove('border-brand-success', 'border-red-500');
+
             if(opt.correct) {
                 updateGlobalScore(50);
                 btn.classList.remove('border-slate-100', 'text-slate-600');
                 btn.classList.add('border-brand-success', 'bg-emerald-50', 'text-brand-success');
-                document.getElementById('p2-feedback-text').innerHTML = "<span class='text-brand-success text-lg'>Correto!</span>";
                 
-                // Set Animation Target
+                feedback.classList.add('border-brand-success');
+                document.getElementById('p2-feedback-text').innerHTML = "<span class='text-brand-success text-lg font-bold'>Correto!</span>";
+                
                 let step = simulationSteps[p2Index];
                 if(step.targetState) {
-                    // Update state variables for animation function
                     graphState.targetIS = step.targetState.isShift;
                     graphState.targetLM = step.targetState.lmShift;
                     document.getElementById('graph-status').innerText = "Resposta registrada. Veja o gráfico.";
@@ -553,8 +609,10 @@
             } else {
                 btn.classList.remove('border-slate-100', 'text-slate-600');
                 btn.classList.add('border-red-500', 'bg-red-50', 'text-red-600');
-                document.getElementById('p2-feedback-text').innerHTML = "<span class='text-red-500 text-lg'>Incorreto.</span>";
-                // Still set target so user can see what happens
+                
+                feedback.classList.add('border-red-500');
+                document.getElementById('p2-feedback-text').innerHTML = "<span class='text-red-500 text-lg font-bold'>Incorreto.</span>";
+                
                 let step = simulationSteps[p2Index];
                  if(step.targetState) {
                     graphState.targetIS = step.targetState.isShift;
@@ -564,7 +622,6 @@
         }
 
         function nextP2Step() {
-            // Apply changes permanently before next step
             if(graphState.targetIS !== undefined) graphState.isShift = graphState.targetIS;
             if(graphState.targetLM !== undefined) graphState.lmShift = graphState.targetLM;
             p2Index++;
@@ -588,13 +645,11 @@
         // --- GRAPH ENGINE ---
         function initCanvas() {
             canvas = document.getElementById('graphCanvas');
-            // Safety check
             if (!canvas) return;
             
             ctx = canvas.getContext('2d');
             const parent = canvas.parentElement;
             
-            // Robust resizing
             canvas.width = parent.clientWidth || 600;
             canvas.height = parent.clientHeight || 400;
             
@@ -603,9 +658,7 @@
             origin = { x: 50, y: height - 50 };
         }
         
-        // Listen for window resize
         window.addEventListener('resize', () => {
-             // Only resize if game screen is visible
              const gameScreen = document.getElementById('screen-phase2-game');
              if(gameScreen && !gameScreen.classList.contains('hidden')) {
                  initCanvas();
@@ -617,12 +670,10 @@
             if(!ctx) return;
             ctx.clearRect(0,0,width,height);
             
-            // Grid
             ctx.strokeStyle = "#f1f5f9"; ctx.lineWidth = 1;
             for(let i=0; i<width; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,height); ctx.stroke(); }
             for(let i=0; i<height; i+=40) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(width,i); ctx.stroke(); }
 
-            // Axes
             ctx.beginPath();
             ctx.moveTo(origin.x, 20); ctx.lineTo(origin.x, origin.y); ctx.lineTo(width-20, origin.y);
             ctx.lineWidth = 2; ctx.strokeStyle = "#334155"; ctx.stroke();
@@ -636,7 +687,6 @@
 
             const shift = 40;
             
-            // BP (Green)
             ctx.strokeStyle = "#16a34a"; ctx.lineWidth = 3; ctx.beginPath();
             let bpY = origin.y - 150;
             if(graphState.bpType === 'horizontal') { ctx.moveTo(origin.x, bpY); ctx.lineTo(width, bpY); }
@@ -645,23 +695,19 @@
             else { ctx.moveTo(width/2 - 60, origin.y); ctx.lineTo(width/2 + 60, 20); }
             ctx.stroke();
 
-            // IS (Blue)
             let isOff = graphState.isShift * shift;
             ctx.strokeStyle = "#2563eb"; ctx.lineWidth = 3; ctx.beginPath();
             ctx.moveTo(origin.x+50+isOff, origin.y-250); ctx.lineTo(origin.x+350+isOff, origin.y-50);
             ctx.stroke(); 
-            // Ghost IS
             if(graphState.isShift !== 0) {
                  ctx.strokeStyle = "rgba(37, 99, 235, 0.2)"; ctx.setLineDash([5,5]); ctx.beginPath();
                  ctx.moveTo(origin.x+50, origin.y-250); ctx.lineTo(origin.x+350, origin.y-50); ctx.stroke(); ctx.setLineDash([]);
             }
 
-            // LM (Red)
             let lmOff = graphState.lmShift * shift;
             ctx.strokeStyle = "#dc2626"; ctx.lineWidth = 3; ctx.beginPath();
             ctx.moveTo(origin.x+50+lmOff, origin.y-50); ctx.lineTo(origin.x+350+lmOff, origin.y-250);
             ctx.stroke();
-            // Ghost LM
              if(graphState.lmShift !== 0) {
                  ctx.strokeStyle = "rgba(220, 38, 38, 0.2)"; ctx.setLineDash([5,5]); ctx.beginPath();
                  ctx.moveTo(origin.x+50, origin.y-50); ctx.lineTo(origin.x+350, origin.y-250); ctx.stroke(); ctx.setLineDash([]);
@@ -672,11 +718,9 @@
             const statusLabel = document.getElementById('animation-status');
             statusLabel.classList.remove('hidden');
             
-            // Reset to start of step
             let startIS = graphState.isShift;
             let startLM = graphState.lmShift;
             
-            // Animation logic: 1. Show Start -> 2. Show Target
             graphState.animStage = 0;
             drawGraph();
 
@@ -706,9 +750,9 @@
             let isFiscal = policy.includes('fiscal');
             let isExp = policy.includes('exp');
             
-            // Step 1: Shock
             let s1 = {
                 question: `Política ${isFiscal?'Fiscal':'Monetária'} ${isExp?'Expansionista':'Contracionista'}. Qual curva se desloca inicialmente?`,
+                hint: "Política Fiscal afeta o mercado de bens (IS). Política Monetária afeta o mercado monetário (LM).",
                 options: [
                     {text: isFiscal?(isExp?"IS p/ Direita":"IS p/ Esquerda"):(isExp?"LM p/ Direita":"LM p/ Esquerda"), correct:true},
                     {text: isFiscal?"LM se move":"IS se move", correct:false}
@@ -719,14 +763,7 @@
                 }
             };
 
-            // Calculate Intermediate Balance
             let balance = 'neutral';
-            // Logic:
-            // Fiscal Exp: i up, Y up. 
-            //   Perf/High Mob: Capital Inflow (i) > Import (Y) -> Superavit
-            //   Low/Null Mob: Import (Y) > Capital Inflow -> Deficit
-            // Mon Exp: i down, Y up.
-            //   Any Mob: Capital Outflow + Import -> Deficit
             
             if(isFiscal) {
                 if(isExp) balance = (mobility === 'perfeita' || mobility === 'imperfeita_alta') ? 'superavit' : 'deficit';
@@ -736,56 +773,56 @@
                 else balance = 'superavit';
             }
 
-            // Step 2: Balance Diagnosis
             let s2 = {
                 question: "Analisando o novo ponto de equilíbrio interno, qual é a situação do Balanço de Pagamentos?",
+                hint: "Compare o novo ponto com a curva BP. Acima dela = Superávit (Entrada Líquida). Abaixo = Déficit.",
                 options: [
                     {text: balance === 'superavit' ? "Superávit (Entrada de Dólares)" : "Déficit (Saída de Dólares)", correct: true},
                     {text: balance === 'superavit' ? "Déficit" : "Superávit", correct: false}
                 ],
-                targetState: s1.targetState // No visual change yet
+                targetState: s1.targetState 
             };
 
-            // Step 3: Adjustment
             let s3 = { options: [], targetState: {...s1.targetState} };
             
             if(regime === 'fixo') {
                 if(balance === 'superavit') {
                     s3.question = "Superávit pressiona Dólar a cair (Apreciar). Como o BC mantém o Câmbio Fixo?";
+                    s3.hint = "Para evitar a queda do dólar, o BC precisa comprar o excesso de oferta. O que isso faz com a Base Monetária?";
                     s3.options = [
                         {text: "Compra Dólares -> Aumenta Reservas -> Expande Moeda (LM Direita)", correct: true},
                         {text: "Vende Dólares -> Contrai Moeda", correct: false}
                     ];
-                    // If LM was 0, goes to 1. If was -1, goes to 0.
                     s3.targetState.lmShift += 1;
-                } else { // Deficit
+                } else { 
                     s3.question = "Déficit pressiona Dólar a subir (Depreciar). Como o BC mantém o Câmbio Fixo?";
+                    s3.hint = "Para evitar a subida do dólar, o BC precisa vender reservas para suprir a falta. O que acontece com os Reais em circulação?";
                     s3.options = [
                         {text: "Vende Dólares -> Perde Reservas -> Contrai Moeda (LM Esquerda)", correct: true},
                         {text: "Compra Dólares -> Expande Moeda", correct: false}
                     ];
                     s3.targetState.lmShift -= 1;
                 }
-            } else { // Flexivel
+            } else { 
                 if(balance === 'superavit') {
                     s3.question = "Superávit faz Dólar cair (Apreciação). Qual o efeito real?";
+                    s3.hint = "Dólar barato torna produtos nacionais caros para estrangeiros. O que acontece com as Exportações Líquidas (NX)?";
                     s3.options = [
                         {text: "Exportações Caem (Competitividade cai) -> IS volta p/ Esquerda", correct: true},
                         {text: "Exportações Sobem -> IS vai p/ Direita", correct: false}
                     ];
                     s3.targetState.isShift -= 1;
-                } else { // Deficit
+                } else { 
                     s3.question = "Déficit faz Dólar subir (Depreciação). Qual o efeito real?";
+                    s3.hint = "Dólar caro torna produtos nacionais baratos lá fora. Isso estimula as vendas externas (NX)?";
                     s3.options = [
                         {text: "Exportações Sobem (Competitividade sobe) -> IS avança p/ Direita", correct: true},
                         {text: "Exportações Caem -> IS volta", correct: false}
                     ];
                     s3.targetState.isShift += 1;
                     
-                    // Special Case: Fiscal Exp + Flex + Low Mob (Q6iv from your list)
-                    // Fiscal Exp (IS+1) -> Deficit -> Deprecia -> IS+1 again -> IS+2
                     if(isFiscal && isExp && mobility === 'imperfeita_baixa') {
-                        s3.targetState.isShift += 0.5; // Visual extra push
+                        s3.targetState.isShift += 0.5; 
                     }
                 }
             }
