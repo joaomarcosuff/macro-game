@@ -45,8 +45,17 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         
-        /* Gráfico Canvas */
         canvas { background-color: #fff; border-radius: 0.5rem; }
+        
+        /* Estilo para o botão de Dica Pulsante */
+        .btn-hint {
+            animation: pulse-yellow 2s infinite;
+        }
+        @keyframes pulse-yellow {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
     </style>
 </head>
 <body class="text-slate-800 min-h-screen flex flex-col font-sans selection:bg-brand-primary selection:text-white">
@@ -62,7 +71,6 @@
                 </div>
             </div>
             
-            <!-- Phase Indicator -->
             <div class="flex items-center gap-2 md:gap-4">
                 <div id="badge-phase1" class="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20 transition-all">
                     <span class="text-xs font-bold uppercase">Fase 1: Fundamentos</span>
@@ -81,7 +89,7 @@
         </div>
     </nav>
 
-    <!-- MAIN CONTENT AREA -->
+    <!-- MAIN CONTENT -->
     <main class="flex-grow flex flex-col items-center justify-center p-4 pt-28 w-full max-w-6xl mx-auto relative z-10">
 
         <!-- INTRO SCREEN -->
@@ -117,45 +125,50 @@
 
         <!-- PHASE 1: FUNDAMENTOS (QUIZ) -->
         <div id="screen-phase1" class="hidden glass-panel w-full max-w-3xl rounded-3xl p-8 animate-slide-up flex flex-col min-h-[500px]">
-            <div class="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
                 <div>
                     <h3 class="text-2xl font-black text-slate-800">Sabatina Técnica</h3>
                     <p class="text-sm text-slate-500 font-medium">Parte I: Agregados Macroeconômicos</p>
                 </div>
                 <div class="text-right">
                     <div class="text-xs font-bold text-slate-400 uppercase">Questão</div>
-                    <div class="text-3xl font-black text-brand-primary"><span id="p1-current">1</span><span class="text-slate-300 text-xl">/6</span></div>
+                    <div class="text-3xl font-black text-brand-primary"><span id="p1-current">1</span><span class="text-slate-300 text-xl">/10</span></div>
                 </div>
             </div>
 
             <div id="p1-question-container" class="flex-grow flex flex-col justify-center">
-                <div class="mb-4 flex items-start justify-between">
-                    <div>
+                <div class="mb-4 flex items-start justify-between gap-4">
+                    <div class="flex-grow">
                         <span id="p1-topic" class="inline-block px-3 py-1 bg-indigo-50 text-brand-primary text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Tópico</span>
                         <h4 id="p1-question" class="text-xl md:text-2xl font-bold text-slate-800 leading-snug">Carregando pergunta...</h4>
                     </div>
-                    <!-- Botão Lâmpada (Dica) -->
-                    <button id="p1-hint-btn" onclick="showP1Hint()" class="ml-4 p-3 bg-yellow-100 text-yellow-600 rounded-full hover:bg-yellow-200 transition shadow-sm" title="Ver Dica">
+                    <!-- Botão Dica Melhorado -->
+                    <button id="p1-hint-btn" onclick="showP1Hint()" class="btn-hint flex-shrink-0 bg-yellow-100 text-yellow-700 p-3 rounded-full hover:bg-yellow-200 transition shadow-md border-2 border-yellow-300 transform hover:scale-110 active:scale-95" title="Ver Dica do Manual">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                     </button>
                 </div>
 
-                <!-- Área da Dica (Inicialmente oculta) -->
-                <div id="p1-hint-box" class="hidden mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg text-sm text-yellow-800 font-medium animate-slide-up">
-                    <span class="font-bold uppercase text-xs block mb-1">💡 Dica do Manual:</span>
-                    <span id="p1-hint-text"></span>
+                <!-- Box de Dica -->
+                <div id="p1-hint-box" class="hidden mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg shadow-sm animate-slide-up">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-xl">💡</span>
+                        <span class="font-bold uppercase text-xs text-yellow-700">Dica do Manual</span>
+                    </div>
+                    <p id="p1-hint-text" class="text-sm text-yellow-900 font-medium leading-relaxed"></p>
                 </div>
                 
                 <div id="p1-options" class="space-y-3">
                     <!-- Opções -->
                 </div>
 
-                <div id="p1-feedback" class="hidden mt-6 p-5 bg-slate-50 rounded-xl border-l-4 animate-pulse-fast shadow-inner">
-                    <p id="p1-feedback-text" class="font-medium text-lg"></p>
+                <div id="p1-feedback" class="hidden mt-6 p-5 rounded-xl border-l-4 animate-slide-up shadow-inner bg-slate-50">
+                    <!-- Feedback Header -->
+                    <div id="p1-feedback-header" class="text-lg font-black uppercase mb-2 tracking-wide"></div>
+                    <p id="p1-feedback-text" class="font-medium text-slate-700 leading-relaxed"></p>
                     <div class="mt-4 flex justify-end">
-                        <button onclick="nextP1Question()" class="bg-brand-primary text-white px-8 py-2 rounded-lg font-bold text-sm hover:bg-indigo-700 transition shadow-lg">Continuar ➜</button>
+                        <button onclick="nextP1Question()" class="bg-brand-primary text-white px-8 py-3 rounded-xl font-bold text-sm hover:bg-brand-dark transition shadow-lg transform hover:-translate-y-1">Continuar ➜</button>
                     </div>
                 </div>
             </div>
@@ -170,6 +183,7 @@
             <div class="bg-slate-50 p-6 rounded-2xl mb-8 border border-slate-100">
                 <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Aproveitamento</div>
                 <div id="p1-final-score" class="text-5xl font-black text-brand-primary mt-2">100%</div>
+                <p class="text-xs text-slate-400 mt-2">Mínimo para aprovação: 70%</p>
             </div>
 
             <button id="btn-start-phase2" onclick="startPhase2Setup()" class="w-full bg-brand-success hover:bg-emerald-600 text-white text-lg font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/30 transition transform hover:-translate-y-1">
@@ -244,15 +258,6 @@
                     
                     <div class="flex items-start justify-between mb-4">
                         <h4 id="p2-question" class="font-bold text-slate-800 text-xl flex-grow leading-snug">Carregando cenário...</h4>
-                        <!-- Botão Dica P2 -->
-                        <button id="p2-hint-btn" onclick="showP2Hint()" class="ml-2 p-2 bg-yellow-100 text-yellow-600 rounded-full hover:bg-yellow-200 transition shadow-sm flex-shrink-0" title="Dica">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
-                        </button>
-                    </div>
-
-                    <!-- Dica P2 -->
-                    <div id="p2-hint-box" class="hidden mb-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg text-xs text-yellow-800 font-medium">
-                        <span id="p2-hint-text"></span>
                     </div>
                     
                     <div id="p2-options" class="space-y-3 mb-4">
@@ -312,73 +317,117 @@
     </main>
 
     <script>
-        // --- DATA: FASE 1 (FUNDAMENTOS - LIVRO USP / Parte I Expandida) ---
+        // --- DATA: FASE 1 (FUNDAMENTOS - LIVRO USP / Parte I Expandida 10 Questões) ---
         const phase1Questions = [
             {
-                topic: "1. Contabilidade Nacional (Identidades)",
-                question: "Pela identidade da renda nacional em economia aberta, o Investimento (I) é financiado por quais componentes?",
-                hint: "Lembre-se da identidade fundamental: S = I + CC. Quem compõe a poupança 'S'?",
+                topic: "1. Identidades Contábeis",
+                question: "Em uma economia aberta, se a Poupança Nacional (Privada + Pública) for menor que o Investimento (S < I), o que deve ocorrer com o setor externo?",
+                hint: "Lembre-se da identidade S = I + CC. Se S é pouco para cobrir I, precisamos de poupança de quem?",
                 options: [
-                    { text: "Poupança Privada + Poupança do Governo + Poupança Externa", correct: true },
-                    { text: "Consumo das Famílias + Gastos do Governo", correct: false },
-                    { text: "Apenas pela Poupança Interna (S)", correct: false }
+                    { text: "Haverá um Déficit em Transações Correntes (Poupança Externa positiva).", correct: true },
+                    { text: "Haverá um Superávit em Transações Correntes.", correct: false },
+                    { text: "O Governo deve necessariamente aumentar impostos.", correct: false }
                 ],
-                explanation: "O investimento (I) é financiado pela Poupança Nacional (S_priv + S_gov) somada à Poupança Externa (Déficit em Transações Correntes)."
+                explanation: "Se S < I, o país precisa captar recursos externos para financiar o investimento, o que contabilmente aparece como um Déficit em Transações Correntes (CC < 0) ou Poupança Externa positiva."
             },
             {
-                topic: "1. Contabilidade Nacional (PIB vs PNB)",
-                question: "Se o Brasil possui um PIB de R$ 10 trilhões e um PNB de R$ 9,8 trilhões, o que isso indica sobre as relações externas?",
-                hint: "PNB = PIB + Renda Líquida Recebida do Exterior. Se PNB é menor, o termo Renda Líquida é positivo ou negativo?",
+                topic: "1. PIB vs PNB",
+                question: "O Brasil historicamente possui um PNB menor que o PIB (PNB < PIB). Qual a razão estrutural para isso?",
+                hint: "PIB mede o produzido NO território. PNB mede a renda dos nacionais. O que sai do país?",
                 options: [
-                    { text: "O país é um remetedor líquido de renda ao exterior (RLR < 0).", correct: true },
-                    { text: "O país é um receptor líquido de renda do exterior.", correct: false },
-                    { text: "A Balança Comercial é necessariamente deficitária.", correct: false }
+                    { text: "O país envia mais Renda Líquida ao Exterior (RLEE) do que recebe.", correct: true },
+                    { text: "O país tem uma balança comercial deficitária.", correct: false },
+                    { text: "O país não tem empresas multinacionais.", correct: false }
                 ],
-                explanation: "PNB < PIB significa que o país envia mais renda (juros, lucros, dividendos) para o exterior do que recebe."
+                explanation: "Como muitas multinacionais operam no Brasil e enviam lucros para fora, a Renda Líquida Enviada ao Exterior é alta, fazendo com que a renda dos nacionais (PNB) seja menor que a produção interna (PIB)."
             },
             {
-                topic: "1. Balanço de Pagamentos (Conceito)",
-                question: "O Balanço de Pagamentos é um registro contábil. Se houver um déficit em Transações Correntes, como ele deve ser financiado contabilmente (excluindo Erros e Omissões)?",
-                hint: "O BP sempre zera (BP = TC + KF + Var.Reservas = 0). Se TC é negativo, quem tem que ser positivo?",
+                topic: "1. Balanço de Pagamentos",
+                question: "O que significa dizer que o Balanço de Pagamentos (BP) é contabilmente igual a zero?",
+                hint: "O BP é um método de partidas dobradas. Todo débito tem um crédito.",
                 options: [
-                    { text: "Pelo superávit na Conta Financeira e/ou uso de Reservas.", correct: true },
-                    { text: "Pelo aumento das Exportações no curto prazo.", correct: false },
-                    { text: "Pela redução imediata da inflação.", correct: false }
+                    { text: "Que a soma de Transações Correntes, Conta Capital/Financeira e Erros e Omissões deve ser nula.", correct: true },
+                    { text: "Que o país não pode ter dívida externa.", correct: false },
+                    { text: "Que exportações devem ser iguais a importações.", correct: false }
                 ],
-                explanation: "Contabilmente, um déficit em conta corrente deve ser coberto por entrada de capitais (superávit financeiro) ou perda de reservas internacionais."
+                explanation: "O BP é uma identidade contábil. Um déficit em uma conta (ex: Comercial) deve ser necessariamente financiado por superávit em outra (ex: Financeira) ou variação de reservas."
             },
             {
                 topic: "1. Abordagem da Absorção",
-                question: "Definindo Absorção Interna (A) como C + I + G. Se a economia gasta mais do que produz (A > Y), qual é o resultado inevitável no setor externo?",
-                hint: "A identidade básica é Y - A = NX. Se A é maior que Y, qual o sinal de NX?",
+                question: "Se a Absorção Interna (Consumo + Investimento + Gastos) cair enquanto o Produto (Y) permanece constante, o que acontece com a Balança Comercial?",
+                hint: "Y - A = NX. Se A cai e Y é fixo, o saldo NX aumenta ou diminui?",
                 options: [
-                    { text: "Déficit na Balança Comercial (NX < 0).", correct: true },
-                    { text: "Superávit na Balança Comercial (NX > 0).", correct: false },
-                    { text: "Aumento da Taxa de Juros.", correct: false }
+                    { text: "A Balança Comercial melhora (tende ao superávit).", correct: true },
+                    { text: "A Balança Comercial piora.", correct: false },
+                    { text: "A taxa de juros aumenta.", correct: false }
                 ],
-                explanation: "Se a absorção interna supera a produção (Y), a diferença deve ser importada, gerando déficit comercial (NX negativo)."
+                explanation: "Reduzir a absorção interna (menos gastos domésticos) libera produção para o mercado externo ou reduz importações, melhorando o saldo comercial (NX)."
             },
             {
-                topic: "2. Sistema Monetário (Instrumentos)",
-                question: "O Banco Central quer conter uma demanda aquecida. Qual instrumento de política monetária contracionista ele deve usar?",
-                hint: "Política contracionista visa reduzir a liquidez (tirar dinheiro do mercado). Vender algo tira dinheiro de quem compra.",
+                topic: "2. Agregados Monetários",
+                question: "Qual agregado monetário inclui títulos públicos de alta liquidez e depósitos de poupança, sendo mais amplo que o M1?",
+                hint: "M1 é só dinheiro vivo e conta corrente. M2, M3 e M4 vão adicionando ativos menos líquidos.",
                 options: [
-                    { text: "Vender Títulos Públicos no Open Market.", correct: true },
-                    { text: "Reduzir a taxa de Redesconto.", correct: false },
-                    { text: "Comprar dólares no mercado cambial.", correct: false }
+                    { text: "M2, M3 ou M4 (dependendo da definição exata do país, mas é mais amplo que M1).", correct: true },
+                    { text: "Base Monetária (B).", correct: false },
+                    { text: "Papel-Moeda em Poder do Público (PMPP).", correct: false }
                 ],
-                explanation: "Ao vender títulos, o BC recolhe dinheiro do mercado, reduzindo a base monetária e elevando os juros."
+                explanation: "M1 é o mais restrito. M2, M3 e M4 (Meios de Pagamento Ampliados) incluem ativos que rendem juros e têm liquidez quase imediata, como poupança e títulos."
             },
             {
-                topic: "2. Sistema Monetário (Agregados)",
-                question: "Qual dos agregados monetários abaixo possui a maior liquidez (facilidade de uso imediato)?",
-                hint: "Pense no dinheiro que está no seu bolso ou na conta corrente vs. investimentos de longo prazo.",
+                topic: "2. Criação de Moeda",
+                question: "Como os bancos comerciais criam moeda escritural?",
+                hint: "Eles não imprimem notas. Eles fazem algo com os depósitos que recebem.",
                 options: [
-                    { text: "M1 (Papel-moeda em poder do público + Depósitos à vista)", correct: true },
-                    { text: "M2 (M1 + Depósitos de poupança e Títulos privados)", correct: false },
-                    { text: "M4 (M3 + Títulos públicos de alta liquidez)", correct: false }
+                    { text: "Emprestando uma parte dos depósitos à vista que recebem (Reserva Fracionária).", correct: true },
+                    { text: "Imprimindo cédulas com autorização do BC.", correct: false },
+                    { text: "Apenas guardando o dinheiro em cofres.", correct: false }
                 ],
-                explanation: "M1 é o agregado de liquidez absoluta: dinheiro em espécie e depósitos em conta corrente que podem ser usados instantaneamente."
+                explanation: "Ao emprestar parte do dinheiro depositado (mantendo apenas o compulsório), o banco coloca dinheiro de volta na economia, multiplicando a oferta monetária."
+            },
+            {
+                topic: "1. PIB Real vs Nominal",
+                question: "Se o PIB Nominal cresceu 10% mas a inflação foi de 10% no mesmo período, o que aconteceu com o PIB Real?",
+                hint: "PIB Real desconta a inflação.",
+                options: [
+                    { text: "O PIB Real permaneceu estagnado (Crescimento zero).", correct: true },
+                    { text: "O PIB Real cresceu 20%.", correct: false },
+                    { text: "O PIB Real cresceu 10%.", correct: false }
+                ],
+                explanation: "O crescimento nominal foi puramente aumento de preços. Em termos de volume de bens produzidos (Real), a economia não cresceu."
+            },
+            {
+                topic: "2. Equação de Fisher",
+                question: "Segundo a Equação de Fisher, se a taxa de juros nominal é 15% e a inflação esperada é 5%, qual é a taxa de juros real aproximada?",
+                hint: "Juro Real = Juro Nominal - Inflação.",
+                options: [
+                    { text: "10%", correct: true },
+                    { text: "20%", correct: false },
+                    { text: "75% (15 x 5)", correct: false }
+                ],
+                explanation: "A taxa real é o ganho de poder de compra. 15% (Nominal) - 5% (Inflação) = 10% (Real)."
+            },
+            {
+                topic: "2. Taxa de Câmbio",
+                question: "O que é a Taxa de Câmbio Real?",
+                hint: "Não é apenas o preço da moeda, mas o preço relativo dos PRODUTOS entre dois países.",
+                options: [
+                    { text: "A taxa nominal ajustada pela relação de preços (inflação) interna e externa.", correct: true },
+                    { text: "O valor do dólar turismo.", correct: false },
+                    { text: "A taxa de juros internacional.", correct: false }
+                ],
+                explanation: "Câmbio Real mede a competitividade. É a taxa nominal multiplicada pela razão entre preços externos e internos (e = E * P*/P)."
+            },
+            {
+                topic: "2. Funções da Moeda",
+                question: "Quando precificamos uma mercadoria em Reais (R$), qual função da moeda estamos utilizando?",
+                hint: "Estamos usando a moeda para medir valor, como uma régua.",
+                options: [
+                    { text: "Unidade de Conta.", correct: true },
+                    { text: "Reserva de Valor.", correct: false },
+                    { text: "Meio de Troca.", correct: false }
+                ],
+                explanation: "Unidade de Conta é a função de servir como medida comum de valor para bens e serviços."
             }
         ];
 
@@ -396,7 +445,6 @@
         function hideAllScreens() {
             const screens = document.querySelectorAll('[id^="screen-"]');
             screens.forEach(s => s.classList.add('hidden'));
-            
             const gameScreen = document.getElementById('screen-phase2-game');
             gameScreen.classList.remove('flex');
             gameScreen.classList.add('hidden');
@@ -435,8 +483,10 @@
             document.getElementById('p1-current').innerText = p1Index + 1;
             
             // Reset UI elements
-            document.getElementById('p1-feedback').classList.add('hidden');
-            document.getElementById('p1-feedback').className = "hidden mt-6 p-5 bg-slate-50 rounded-xl border-l-4 animate-pulse-fast shadow-inner"; // Reset classes
+            const feedbackBox = document.getElementById('p1-feedback');
+            feedbackBox.classList.add('hidden');
+            feedbackBox.className = "hidden mt-6 p-5 rounded-xl border-l-4 animate-slide-up shadow-inner bg-slate-50"; 
+            
             document.getElementById('p1-hint-box').classList.add('hidden');
             document.getElementById('p1-hint-text').innerText = q.hint || "Sem dica disponível.";
             
@@ -462,30 +512,41 @@
             btns.forEach(b => b.disabled = true);
 
             const feedbackDiv = document.getElementById('p1-feedback');
+            const feedbackHeader = document.getElementById('p1-feedback-header');
             const feedbackText = document.getElementById('p1-feedback-text');
             feedbackDiv.classList.remove('hidden');
 
-            // Reset classes
-            feedbackDiv.classList.remove('border-brand-success', 'border-red-500');
+            // Limpa classes de cor anteriores
+            feedbackDiv.classList.remove('border-brand-success', 'border-red-500', 'bg-emerald-50', 'bg-red-50');
+            feedbackHeader.classList.remove('text-brand-success', 'text-red-500');
 
             if(opt.correct) {
                 p1Score++;
                 updateGlobalScore(100);
+                
+                // Estilo Botão
                 btn.classList.remove('border-slate-100', 'text-slate-600');
                 btn.classList.add('border-brand-success', 'bg-emerald-50', 'text-brand-success');
                 btn.querySelector('span').classList.add('bg-brand-success', 'text-white');
                 btn.querySelector('span').innerText = '✓';
                 
-                feedbackDiv.classList.add('border-brand-success');
-                feedbackText.innerHTML = `<span class="text-brand-success font-bold text-lg block mb-1">Correto!</span> ${q.explanation}`;
+                // Estilo Feedback
+                feedbackDiv.classList.add('border-brand-success', 'bg-emerald-50');
+                feedbackHeader.innerText = "CORRETO!";
+                feedbackHeader.classList.add('text-brand-success');
+                feedbackText.innerHTML = q.explanation;
             } else {
+                // Estilo Botão
                 btn.classList.remove('border-slate-100', 'text-slate-600');
                 btn.classList.add('border-red-500', 'bg-red-50', 'text-red-600');
                 btn.querySelector('span').classList.add('bg-red-500', 'text-white');
                 btn.querySelector('span').innerText = '✕';
                 
-                feedbackDiv.classList.add('border-red-500');
-                feedbackText.innerHTML = `<span class="text-red-500 font-bold text-lg block mb-1">Incorreto.</span> ${q.explanation}`;
+                // Estilo Feedback
+                feedbackDiv.classList.add('border-red-500', 'bg-red-50');
+                feedbackHeader.innerText = "RESPOSTA INCORRETA";
+                feedbackHeader.classList.add('text-red-500');
+                feedbackText.innerHTML = `A alternativa correta era diferente.<br><br><strong>Explicação:</strong> ${q.explanation}`;
             }
         }
 
@@ -501,22 +562,31 @@
         function finishPhase1() {
             hideAllScreens();
             document.getElementById('screen-phase1-result').classList.remove('hidden');
-            const passed = p1Score >= 4; 
+            const passed = p1Score >= 7; // 70% de 10 questões
             
+            const title = document.getElementById('p1-title');
+            const msg = document.getElementById('p1-msg');
+            const icon = document.getElementById('p1-icon');
+            const btnNext = document.getElementById('btn-start-phase2');
+            const btnRetry = document.getElementById('btn-retry-phase1');
+
             if(passed) {
-                document.getElementById('p1-title').innerText = "Aprovado!";
-                document.getElementById('p1-msg').innerText = "Você domina os fundamentos. O caminho para a presidência está aberto.";
-                document.getElementById('btn-start-phase2').classList.remove('hidden');
-                document.getElementById('btn-retry-phase1').classList.add('hidden');
+                title.innerText = "Aprovado!";
+                title.className = "text-3xl font-black text-brand-success mb-2";
+                msg.innerText = "Você domina os fundamentos. O caminho para a presidência está aberto.";
+                icon.innerText = "🎉";
+                btnNext.classList.remove('hidden');
+                btnRetry.classList.add('hidden');
                 unlockPhase2();
             } else {
-                document.getElementById('p1-title').innerText = "Reprovado";
-                document.getElementById('p1-icon').innerText = "📚";
-                document.getElementById('p1-msg').innerText = "Você precisa de mais estudo nos Fundamentos (Parte I).";
-                document.getElementById('btn-start-phase2').classList.add('hidden');
-                document.getElementById('btn-retry-phase1').classList.remove('hidden');
+                title.innerText = "Reprovado";
+                title.className = "text-3xl font-black text-red-500 mb-2";
+                msg.innerText = "Você precisa de mais estudo nos Fundamentos (Parte I).";
+                icon.innerText = "📚";
+                btnNext.classList.add('hidden');
+                btnRetry.classList.remove('hidden');
             }
-            document.getElementById('p1-final-score').innerText = Math.round((p1Score/6)*100) + "%";
+            document.getElementById('p1-final-score').innerText = Math.round((p1Score/10)*100) + "%";
         }
 
         // --- PHASE 2 LOGIC (MOTOR MUNDELL-FLEMING COMPLETO) ---
@@ -611,7 +681,7 @@
                 btn.classList.add('border-red-500', 'bg-red-50', 'text-red-600');
                 
                 feedback.classList.add('border-red-500');
-                document.getElementById('p2-feedback-text').innerHTML = "<span class='text-red-500 text-lg font-bold'>Incorreto.</span>";
+                document.getElementById('p2-feedback-text').innerHTML = "<span class='text-red-500 text-lg font-bold'>RESPOSTA INCORRETA.</span>";
                 
                 let step = simulationSteps[p2Index];
                  if(step.targetState) {
