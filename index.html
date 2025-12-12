@@ -378,13 +378,27 @@
 
     <!-- === LOGIC === -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-
-        // CONFIGURAÇÃO DO FIREBASE (Automática do ambiente Canvas ou Fallback)
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
         
-        let auth, provider;
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBnUPL3E8JnbBuqnINL-M6dyZ0MxEddng",
+            authDomain: "econoquest-uff.firebaseapp.com",
+            projectId: "econoquest-uff",
+            storageBucket: "econoquest-uff.firebasestorage.app",
+            messagingSenderId: "837238846376",
+            appId: "1:837238846376:web:b8366d12da6af14eb5a39d",
+            measurementId: "G-10HPXC2MVB"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
         // UI Elements para Login
         const loginScreen = document.getElementById('login-screen');
@@ -396,78 +410,55 @@
         const userNameEl = document.getElementById('user-name');
         const userAvatarEl = document.getElementById('user-avatar');
 
-        // Inicialização
-        if (firebaseConfig) {
-            const app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            provider = new GoogleAuthProvider();
-
-            // Monitorar Estado
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    // Usuário Logado
-                    loginScreen.classList.add('hidden');
-                    appContainer.classList.remove('hidden');
-                    appContainer.classList.add('flex'); // Necessário para layout
-                    
-                    // Update Info
-                    userNameEl.innerText = user.displayName || "Economista Anônimo";
-                    userAvatarEl.src = user.photoURL || "https://ui-avatars.com/api/?name=" + (user.displayName || "User");
-                } else {
-                    // Usuário Não Logado
-                    loginScreen.classList.remove('hidden');
-                    appContainer.classList.add('hidden');
-                    appContainer.classList.remove('flex');
-                    
-                    // Reset UI Login
-                    loadingEl.classList.add('hidden');
-                    btnLogin.classList.remove('hidden');
-                }
-            });
-
-            // Login Action
-            btnLogin.addEventListener('click', async () => {
-                try {
-                    loadingEl.classList.remove('hidden');
-                    btnLogin.classList.add('hidden');
-                    errorEl.classList.add('hidden');
-                    
-                    await signInWithPopup(auth, provider);
-                } catch (error) {
-                    console.error("Login failed", error);
-                    loadingEl.classList.add('hidden');
-                    btnLogin.classList.remove('hidden');
-                    errorEl.innerText = "Erro ao entrar: " + error.message;
-                    errorEl.classList.remove('hidden');
-                }
-            });
-
-            // Logout Action
-            btnLogout.addEventListener('click', async () => {
-                try {
-                    await signOut(auth);
-                    location.reload(); // Recarrega para limpar estado do jogo
-                } catch (error) {
-                    console.error("Logout failed", error);
-                }
-            });
-
-        } else {
-            console.warn("Firebase Config not found. Running in Guest Mode/Debug.");
-            // Modo debug se não houver config (permite visualizar o jogo)
-            errorEl.innerText = "Modo Debug: Configuração Firebase não detectada.";
-            errorEl.classList.remove('hidden');
-            
-            // Bypass login for demo purposes if needed, otherwise stuck on login
-             btnLogin.innerText = "Entrar (Modo Simulado)";
-             btnLogin.onclick = () => {
+        // Monitorar Estado
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Usuário Logado
                 loginScreen.classList.add('hidden');
                 appContainer.classList.remove('hidden');
-                appContainer.classList.add('flex');
-                userNameEl.innerText = "Convidado";
-                userAvatarEl.src = "https://ui-avatars.com/api/?name=Guest";
-             }
-        }
+                appContainer.classList.add('flex'); // Necessário para layout
+                
+                // Update Info
+                userNameEl.innerText = user.displayName || "Economista Anônimo";
+                userAvatarEl.src = user.photoURL || "https://ui-avatars.com/api/?name=" + (user.displayName || "User");
+            } else {
+                // Usuário Não Logado
+                loginScreen.classList.remove('hidden');
+                appContainer.classList.add('hidden');
+                appContainer.classList.remove('flex');
+                
+                // Reset UI Login
+                loadingEl.classList.add('hidden');
+                btnLogin.classList.remove('hidden');
+            }
+        });
+
+        // Login Action
+        btnLogin.addEventListener('click', async () => {
+            try {
+                loadingEl.classList.remove('hidden');
+                btnLogin.classList.add('hidden');
+                errorEl.classList.add('hidden');
+                
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Login failed", error);
+                loadingEl.classList.add('hidden');
+                btnLogin.classList.remove('hidden');
+                errorEl.innerText = "Erro ao entrar: " + error.message;
+                errorEl.classList.remove('hidden');
+            }
+        });
+
+        // Logout Action
+        btnLogout.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                location.reload(); // Recarrega para limpar estado do jogo
+            } catch (error) {
+                console.error("Logout failed", error);
+            }
+        });
     </script>
 
     <!-- === LÓGICA ORIGINAL DO JOGO === -->
