@@ -3,38 +3,754 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macro Game - Simulator</title>
-    <!-- Fonte Google Poppins para visual mais "Game" -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Macro Game - USP Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Poppins', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
                     colors: {
                         brand: {
-                            dark: '#1e1b4b',
-                            primary: '#4f46e5',
+                            dark: '#0f172a',
+                            primary: '#4338ca',
                             accent: '#f59e0b',
+                            success: '#10b981',
+                            danger: '#ef4444'
                         }
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+                        slideUp: { from: { opacity: 0, transform: 'translateY(20px)' }, to: { opacity: 1, transform: 'translateY(0)' } }
                     }
                 }
             }
         }
     </script>
     <style>
-        body {
-            /* Fundo Gradiente Vibrante para diferenciar da versão antiga */
-            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
-            overflow-x: hidden;
+        body { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); overflow-x: hidden; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-        canvas { 
-            background-color: #ffffff; 
-            border-radius: 1rem;
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        .phase-locked { opacity: 0.6; pointer-events: none; filter: grayscale(1); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        
+        /* Gráfico Canvas */
+        canvas { background-color: #fff; border-radius: 0.5rem; }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col font-sans selection:bg-brand-primary selection:text-white">
+
+    <!-- Navbar -->
+    <nav class="w-full p-4 flex justify-center z-50 fixed top-0">
+        <div class="bg-white/95 backdrop-blur-md rounded-full px-6 py-3 shadow-2xl flex justify-between items-center w-full max-w-5xl border border-white/20 transition-all hover:scale-[1.01]">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="location.reload()">
+                <div class="bg-brand-primary p-2 rounded-lg text-white font-bold text-xl shadow-lg">M</div>
+                <div>
+                    <h1 class="text-lg font-extrabold tracking-tight text-brand-primary leading-none">MACRO<span class="text-slate-800">GAME</span></h1>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">USP Edition</span>
+                </div>
+            </div>
+            
+            <!-- Phase Indicator -->
+            <div class="flex items-center gap-2 md:gap-4">
+                <div id="badge-phase1" class="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20 transition-all">
+                    <span class="text-xs font-bold uppercase">Fase 1: Fundamentos</span>
+                </div>
+                <div class="hidden md:block h-px w-8 bg-slate-300"></div>
+                <div id="badge-phase2" class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-400 border border-slate-200 phase-locked transition-all">
+                    <span class="text-xs font-bold uppercase">Fase 2: Simulador</span>
+                    <span class="text-xs">🔒</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 bg-slate-800 text-white px-4 py-1.5 rounded-full shadow-lg">
+                <span class="text-xs font-bold text-slate-400 uppercase">Score</span>
+                <span id="global-score" class="text-sm font-black text-brand-accent">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4 pt-28 w-full max-w-6xl mx-auto relative z-10">
+
+        <!-- INTRO SCREEN -->
+        <div id="screen-intro" class="glass-panel w-full max-w-4xl rounded-3xl p-8 md:p-12 text-center animate-slide-up relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-primary to-brand-accent"></div>
+            
+            <div class="inline-block p-6 bg-indigo-50 rounded-full mb-8 animate-float shadow-inner border border-indigo-100">
+                <span class="text-6xl">🎓</span>
+            </div>
+            
+            <h2 class="text-4xl md:text-5xl font-black text-slate-800 mb-4 tracking-tight">Jornada Macroeconômica</h2>
+            <p class="text-lg md:text-xl text-slate-500 mb-10 max-w-2xl mx-auto font-medium leading-relaxed">
+                Domine a teoria do <strong>Manual de Macroeconomia da USP</strong> e assuma a presidência do Banco Central.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-10 text-left">
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition cursor-default">
+                    <div class="text-brand-primary font-black text-4xl mb-2 opacity-20">01</div>
+                    <h3 class="font-bold text-lg mb-1 text-brand-primary">Sabatina Técnica</h3>
+                    <p class="text-sm text-slate-500">Teste seus conhecimentos sobre Contabilidade Nacional, BP e Sistema Monetário.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 opacity-70">
+                    <div class="text-slate-400 font-black text-4xl mb-2 opacity-20">02</div>
+                    <h3 class="font-bold text-lg mb-1 text-slate-600">O Simulador</h3>
+                    <p class="text-sm text-slate-400">Aplique o modelo Mundell-Fleming em cenários reais de crise e expansão.</p>
+                </div>
+            </div>
+
+            <button onclick="startPhase1()" class="bg-brand-primary hover:bg-indigo-700 text-white text-xl font-bold py-4 px-12 rounded-xl shadow-xl shadow-indigo-500/30 transition-all transform hover:scale-105 active:scale-95">
+                INICIAR FASE 1
+            </button>
+        </div>
+
+        <!-- PHASE 1: FUNDAMENTOS (QUIZ) -->
+        <div id="screen-phase1" class="hidden glass-panel w-full max-w-3xl rounded-3xl p-8 animate-slide-up flex flex-col min-h-[500px]">
+            <div class="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
+                <div>
+                    <h3 class="text-2xl font-black text-slate-800">Sabatina Técnica</h3>
+                    <p class="text-sm text-slate-500 font-medium">Parte I: Agregados Macroeconômicos</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs font-bold text-slate-400 uppercase">Questão</div>
+                    <div class="text-3xl font-black text-brand-primary"><span id="p1-current">1</span><span class="text-slate-300 text-xl">/3</span></div>
+                </div>
+            </div>
+
+            <div id="p1-question-container" class="flex-grow flex flex-col justify-center">
+                <div class="mb-6">
+                    <span id="p1-topic" class="inline-block px-3 py-1 bg-indigo-50 text-brand-primary text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Tópico</span>
+                    <h4 id="p1-question" class="text-xl md:text-2xl font-bold text-slate-800 leading-snug">Carregando pergunta...</h4>
+                </div>
+                
+                <div id="p1-options" class="space-y-3">
+                    <!-- Opções -->
+                </div>
+
+                <div id="p1-feedback" class="hidden mt-6 p-5 bg-slate-50 rounded-xl border-l-4 border-brand-primary animate-pulse-fast shadow-inner">
+                    <p id="p1-feedback-text" class="font-medium text-slate-700 text-lg"></p>
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="nextP1Question()" class="bg-brand-primary text-white px-8 py-2 rounded-lg font-bold text-sm hover:bg-indigo-700 transition shadow-lg">Continuar ➜</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 1 RESULT SCREEN -->
+        <div id="screen-phase1-result" class="hidden glass-panel w-full max-w-lg rounded-3xl p-10 text-center animate-slide-up">
+            <div id="p1-icon" class="text-7xl mb-6 animate-bounce">🎉</div>
+            <h2 id="p1-title" class="text-3xl font-black text-slate-800 mb-2">Aprovado!</h2>
+            <p id="p1-msg" class="text-slate-500 mb-8 font-medium">Você demonstrou domínio dos conceitos básicos.</p>
+            
+            <div class="bg-slate-50 p-6 rounded-2xl mb-8 border border-slate-100">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Aproveitamento</div>
+                <div id="p1-final-score" class="text-5xl font-black text-brand-primary mt-2">100%</div>
+            </div>
+
+            <button id="btn-start-phase2" onclick="startPhase2Setup()" class="w-full bg-brand-success hover:bg-emerald-600 text-white text-lg font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/30 transition transform hover:-translate-y-1">
+                ASSUMIR O BANCO CENTRAL ➜
+            </button>
+            <button id="btn-retry-phase1" onclick="startPhase1()" class="hidden w-full bg-slate-200 hover:bg-slate-300 text-slate-600 text-lg font-bold py-4 rounded-xl transition">
+                Tentar Novamente ↺
+            </button>
+        </div>
+
+        <!-- PHASE 2: SETUP -->
+        <div id="screen-phase2-setup" class="hidden glass-panel w-full max-w-4xl rounded-3xl p-8 md:p-12 animate-slide-up">
+            <div class="text-center mb-10">
+                <span class="bg-brand-primary/10 text-brand-primary px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Simulador Avançado</span>
+                <h3 class="text-3xl font-black text-slate-800 mt-3 mb-2">Sala de Guerra Econômica</h3>
+                <p class="text-slate-500">Configure o cenário para testar a eficácia das políticas no modelo Mundell-Fleming.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-10">
+                <div class="space-y-3">
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Regime Cambial</label>
+                    <div class="relative">
+                        <select id="regime" class="w-full p-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-bold text-slate-700 outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition appearance-none cursor-pointer">
+                            <option value="fixo">🛡️ Câmbio Fixo</option>
+                            <option value="flexivel">💸 Câmbio Flexível</option>
+                        </select>
+                        <div class="absolute right-4 top-4 text-slate-400 pointer-events-none">▼</div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Mobilidade de Capitais</label>
+                    <div class="relative">
+                        <select id="mobility" class="w-full p-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-bold text-slate-700 outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition appearance-none cursor-pointer">
+                            <option value="perfeita">🌍 Perfeita (Livre Fluxo)</option>
+                            <option value="imperfeita_alta">📈 Imperfeita (Alta)</option>
+                            <option value="imperfeita_baixa">📉 Imperfeita (Baixa)</option>
+                            <option value="nula">🚫 Nula (Sem Mobilidade)</option>
+                        </select>
+                        <div class="absolute right-4 top-4 text-slate-400 pointer-events-none">▼</div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Instrumento de Política</label>
+                    <div class="relative">
+                        <select id="policy" class="w-full p-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-bold text-slate-700 outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition appearance-none cursor-pointer">
+                            <option value="fiscal_exp">🏛️ Fiscal Expansionista (G↑)</option>
+                            <option value="fiscal_contr">🏛️ Fiscal Contracionista (G↓)</option>
+                            <option value="monetaria_exp">💰 Monetária Expansionista (M↑)</option>
+                            <option value="monetaria_contr">💰 Monetária Contracionista (M↓)</option>
+                        </select>
+                        <div class="absolute right-4 top-4 text-slate-400 pointer-events-none">▼</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                 <button onclick="startSimulation()" class="bg-brand-primary text-white text-xl px-12 py-4 rounded-xl font-bold hover:bg-brand-dark transition shadow-xl shadow-indigo-500/30 transform hover:scale-105 active:scale-95">EXECUTAR POLÍTICA ▶</button>
+            </div>
+        </div>
+
+        <!-- PHASE 2: GAMEPLAY (SIMULADOR) -->
+        <div id="screen-phase2-game" class="hidden glass-panel w-full max-w-7xl rounded-3xl p-6 animate-slide-up flex-col lg:flex-row gap-6 h-[80vh] min-h-[600px]">
+            <!-- Coluna Quiz -->
+            <div class="w-full lg:w-4/12 flex flex-col h-full">
+                <div class="bg-white rounded-2xl p-6 h-full flex flex-col border border-slate-100 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-brand-primary"></div>
+                    
+                    <div class="flex justify-between mb-6">
+                        <span class="text-xs font-black text-brand-primary uppercase tracking-widest">Análise em Tempo Real</span>
+                        <span id="p2-step-indicator" class="text-xs font-bold bg-slate-100 text-slate-500 px-3 py-1 rounded-full">Passo 1/3</span>
+                    </div>
+                    
+                    <h4 id="p2-question" class="font-bold text-slate-800 text-xl mb-6 flex-grow leading-snug">Carregando cenário...</h4>
+                    
+                    <div id="p2-options" class="space-y-3 mb-4">
+                        <!-- Options generated here -->
+                    </div>
+                    
+                    <div id="p2-feedback" class="hidden p-4 bg-slate-50 rounded-xl text-sm border-l-4 border-slate-300 animate-slide-up">
+                        <p id="p2-feedback-text" class="font-bold mb-3 text-base"></p>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="playStepAnimation()" class="flex-1 bg-indigo-100 text-indigo-700 py-3 rounded-lg font-bold text-xs hover:bg-indigo-200 transition">👁️ VER GRÁFICO</button>
+                            <button id="p2-next-btn" onclick="nextP2Step()" class="flex-1 bg-brand-primary text-white py-3 rounded-lg font-bold text-xs hover:bg-brand-dark transition shadow-lg">PRÓXIMO ➜</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Coluna Gráfico -->
+            <div class="w-full lg:w-8/12 bg-white rounded-2xl shadow-inner border border-slate-200 p-4 relative flex flex-col">
+                <div class="flex justify-between items-center px-2 mb-2">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase">Monitor IS-LM-BP</h3>
+                    <div id="animation-status" class="hidden text-xs font-bold text-white bg-purple-500 px-2 py-0.5 rounded animate-pulse">LIVE UPDATE</div>
+                </div>
+                
+                <div class="flex-grow relative rounded-xl bg-slate-50 border border-slate-100 overflow-hidden">
+                    <canvas id="graphCanvas" class="w-full h-full"></canvas>
+                    
+                    <!-- Legenda -->
+                    <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-4 py-2 rounded-lg shadow-sm border border-slate-100 text-xs font-bold text-slate-500 flex gap-4">
+                        <span class="flex items-center"><span class="w-2 h-2 bg-blue-600 rounded-full mr-1.5"></span>IS</span>
+                        <span class="flex items-center"><span class="w-2 h-2 bg-red-600 rounded-full mr-1.5"></span>LM</span>
+                        <span class="flex items-center"><span class="w-2 h-2 bg-green-600 rounded-full mr-1.5"></span>BP</span>
+                    </div>
+                </div>
+                
+                <div id="graph-status" class="mt-3 text-center text-xs font-mono text-slate-400 bg-slate-100 py-2 rounded-lg">Aguardando decisão...</div>
+            </div>
+        </div>
+
+        <!-- PHASE 2 RESULT -->
+        <div id="screen-phase2-result" class="hidden glass-panel w-full max-w-lg rounded-3xl p-10 text-center animate-slide-up">
+            <div id="p2-icon" class="text-7xl mb-6">📊</div>
+            <h2 id="p2-title" class="text-3xl font-black text-slate-800 mb-2">Análise Concluída</h2>
+            <p id="p2-msg" class="text-slate-500 mb-8 font-medium">Ciclo de política encerrado.</p>
+            
+            <div class="bg-indigo-50 p-6 rounded-2xl mb-8 border border-indigo-100">
+                <div class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Score Total</div>
+                <div id="final-total-score" class="text-5xl font-black text-brand-primary mt-2">0</div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <button onclick="startPhase2Setup()" class="w-full bg-brand-primary hover:bg-brand-dark text-white py-4 rounded-xl font-bold shadow-lg transition">Nova Simulação</button>
+                <button onclick="location.reload()" class="w-full bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 py-4 rounded-xl font-bold transition">Menu Principal</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- DATA: FASE 1 (FUNDAMENTOS - LIVRO USP) ---
+        const phase1Questions = [
+            {
+                topic: "Contabilidade Nacional (Cap. 1)",
+                question: "O Investimento (I) é fundamental para o crescimento. Pela identidade da renda nacional em economia aberta, o Investimento é igual a:",
+                options: [
+                    { text: "Poupança Nacional + Poupança Externa", correct: true },
+                    { text: "Consumo + Gastos do Governo", correct: false },
+                    { text: "Exportações - Importações", correct: false }
+                ],
+                explanation: "Correto! I = S_priv + (T-G) + (M-X). O investimento é financiado pela poupança interna e pela poupança externa (déficit em conta corrente)."
+            },
+            {
+                topic: "Balanço de Pagamentos (Cap. 1)",
+                question: "Se o país tem um Déficit em Transações Correntes (TC < 0) e o Banco Central não quer perder reservas, o que deve ocorrer na Conta Financeira?",
+                options: [
+                    { text: "Deve haver um Superávit (Entrada de Capitais)", correct: true },
+                    { text: "Deve haver um Déficit (Saída de Capitais)", correct: false },
+                    { text: "O Governo deve aumentar impostos", correct: false }
+                ],
+                explanation: "Exato! Para zerar o BP sem usar reservas, o déficit comercial deve ser financiado por entrada de capitais."
+            },
+            {
+                topic: "Sistema Monetário (Cap. 2)",
+                question: "Para controlar a inflação, o Banco Central decide usar um instrumento clássico de política monetária restritiva. Qual seria?",
+                options: [
+                    { text: "Aumentar a Taxa de Redisconto ou Compulsório", correct: true },
+                    { text: "Comprar Títulos Públicos (Open Market)", correct: false },
+                    { text: "Reduzir a Taxa de Juros Básica", correct: false }
+                ],
+                explanation: "Perfeito. Aumentar o redisconto ou compulsório reduz a liquidez bancária, contraindo a oferta de moeda."
+            }
+        ];
+
+        // --- GLOBAL STATE ---
+        let p1Index = 0;
+        let p1Score = 0;
+        let globalScore = 0;
+        
+        let simulationSteps = [];
+        let p2Index = 0;
+        let graphState = { isShift: 0, lmShift: 0, bpType: 'horizontal', animStage: 0 };
+        let canvas, ctx, width, height, origin;
+
+        // --- NAVIGATION & UTILS ---
+        function hideAllScreens() {
+            const screens = document.querySelectorAll('[id^="screen-"]');
+            screens.forEach(s => s.classList.add('hidden'));
+            document.getElementById('screen-phase2-game').classList.remove('flex'); // remove flex specifically
+        }
+
+        function updateGlobalScore(val) {
+            globalScore += val;
+            document.getElementById('global-score').innerText = globalScore;
+        }
+
+        function unlockPhase2() {
+            const b1 = document.getElementById('badge-phase1');
+            const b2 = document.getElementById('badge-phase2');
+            b1.classList.remove('bg-brand-primary/10', 'text-brand-primary');
+            b1.classList.add('bg-brand-success/10', 'text-brand-success', 'border-brand-success/20');
+            b1.innerHTML = '<span class="text-xs font-bold uppercase">Fase 1: Concluída ✓</span>';
+            
+            b2.classList.remove('phase-locked', 'bg-slate-100', 'text-slate-400');
+            b2.classList.add('bg-brand-primary', 'text-white', 'shadow-lg');
+            b2.innerHTML = '<span class="text-xs font-bold uppercase">Fase 2: Ativa</span>';
+        }
+
+        // --- PHASE 1 LOGIC ---
+        function startPhase1() {
+            hideAllScreens();
+            document.getElementById('screen-phase1').classList.remove('hidden');
+            p1Index = 0;
+            p1Score = 0;
+            loadP1Question();
+        }
+
+        function loadP1Question() {
+            const q = phase1Questions[p1Index];
+            document.getElementById('p1-topic').innerText = q.topic;
+            document.getElementById('p1-question').innerText = q.question;
+            document.getElementById('p1-current').innerText = p1Index + 1;
+            document.getElementById('p1-feedback').classList.add('hidden');
+            
+            const div = document.getElementById('p1-options');
+            div.innerHTML = '';
+            
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 bg-white border-2 border-slate-100 rounded-xl font-medium text-slate-600 hover:border-brand-primary hover:bg-indigo-50 hover:text-brand-primary transition shadow-sm group";
+                btn.innerHTML = `<span class="inline-block w-6 h-6 rounded-full bg-slate-100 text-slate-400 text-center text-xs leading-6 mr-3 font-bold group-hover:bg-brand-primary group-hover:text-white transition">?</span>${opt.text}`;
+                btn.onclick = () => checkP1Answer(opt, btn, q);
+                div.appendChild(btn);
+            });
+        }
+
+        function checkP1Answer(opt, btn, q) {
+            const btns = document.getElementById('p1-options').querySelectorAll('button');
+            btns.forEach(b => b.disabled = true);
+
+            const feedbackDiv = document.getElementById('p1-feedback');
+            const feedbackText = document.getElementById('p1-feedback-text');
+            feedbackDiv.classList.remove('hidden');
+
+            if(opt.correct) {
+                p1Score++;
+                updateGlobalScore(100);
+                btn.classList.remove('border-slate-100', 'text-slate-600');
+                btn.classList.add('border-brand-success', 'bg-emerald-50', 'text-brand-success');
+                btn.querySelector('span').classList.add('bg-brand-success', 'text-white');
+                btn.querySelector('span').innerText = '✓';
+                
+                feedbackDiv.classList.add('border-brand-success');
+                feedbackText.innerHTML = `<span class="text-brand-success font-bold text-lg block mb-1">Correto!</span> ${q.explanation}`;
+            } else {
+                btn.classList.remove('border-slate-100', 'text-slate-600');
+                btn.classList.add('border-red-500', 'bg-red-50', 'text-red-600');
+                btn.querySelector('span').classList.add('bg-red-500', 'text-white');
+                btn.querySelector('span').innerText = '✕';
+                
+                feedbackDiv.classList.add('border-red-500');
+                feedbackText.innerHTML = `<span class="text-red-500 font-bold text-lg block mb-1">Incorreto.</span> ${q.explanation}`;
+            }
+        }
+
+        function nextP1Question() {
+            p1Index++;
+            if(p1Index < phase1Questions.length) {
+                loadP1Question();
+            } else {
+                finishPhase1();
+            }
+        }
+
+        function finishPhase1() {
+            hideAllScreens();
+            document.getElementById('screen-phase1-result').classList.remove('hidden');
+            const passed = p1Score >= 2; 
+            
+            if(passed) {
+                document.getElementById('p1-title').innerText = "Aprovado!";
+                document.getElementById('p1-msg').innerText = "Você domina os fundamentos. O caminho para a presidência está aberto.";
+                document.getElementById('btn-start-phase2').classList.remove('hidden');
+                document.getElementById('btn-retry-phase1').classList.add('hidden');
+                unlockPhase2();
+            } else {
+                document.getElementById('p1-title').innerText = "Reprovado";
+                document.getElementById('p1-icon').innerText = "📚";
+                document.getElementById('p1-msg').innerText = "Você precisa de mais estudo nos Fundamentos (Parte I).";
+                document.getElementById('btn-start-phase2').classList.add('hidden');
+                document.getElementById('btn-retry-phase1').classList.remove('hidden');
+            }
+            document.getElementById('p1-final-score').innerText = Math.round((p1Score/3)*100) + "%";
+        }
+
+        // --- PHASE 2 LOGIC (MOTOR MUNDELL-FLEMING COMPLETO) ---
+        function startPhase2Setup() {
+            hideAllScreens();
+            document.getElementById('screen-phase2-setup').classList.remove('hidden');
+        }
+
+        function startSimulation() {
+            const regime = document.getElementById('regime').value;
+            const mobility = document.getElementById('mobility').value;
+            const policy = document.getElementById('policy').value;
+            
+            // Generate Full Logic
+            simulationSteps = generateMundellFlemingLogic(regime, mobility, policy);
+            p2Index = 0;
+            
+            hideAllScreens();
+            const gameScreen = document.getElementById('screen-phase2-game');
+            gameScreen.classList.remove('hidden');
+            gameScreen.classList.add('flex');
+            
+            // Init Graph
+            initCanvas();
+            graphState = { isShift: 0, lmShift: 0, bpType: getBpType(mobility), animStage: 0 };
+            drawGraph();
+            loadP2Step();
+        }
+
+        function loadP2Step() {
+            if(p2Index >= simulationSteps.length) { finishPhase2(); return; }
+            const step = simulationSteps[p2Index];
+            
+            document.getElementById('p2-step-indicator').innerText = `Passo ${p2Index + 1}/${simulationSteps.length}`;
+            document.getElementById('p2-question').innerText = step.question;
+            document.getElementById('p2-feedback').classList.add('hidden');
+            document.getElementById('graph-status').innerText = "Aguardando resposta...";
+
+            const div = document.getElementById('p2-options');
+            div.innerHTML = '';
+            
+            step.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 bg-white border-2 border-slate-100 rounded-xl font-bold text-slate-600 hover:border-brand-primary hover:text-brand-primary transition shadow-sm";
+                btn.innerText = opt.text;
+                btn.onclick = () => checkP2Answer(opt, btn);
+                div.appendChild(btn);
+            });
+        }
+
+        function checkP2Answer(opt, btn) {
+            const btns = document.getElementById('p2-options').querySelectorAll('button');
+            btns.forEach(b => b.disabled = true);
+            
+            const feedback = document.getElementById('p2-feedback');
+            feedback.classList.remove('hidden');
+            
+            if(opt.correct) {
+                updateGlobalScore(50);
+                btn.classList.remove('border-slate-100', 'text-slate-600');
+                btn.classList.add('border-brand-success', 'bg-emerald-50', 'text-brand-success');
+                document.getElementById('p2-feedback-text').innerHTML = "<span class='text-brand-success text-lg'>Correto!</span>";
+                
+                // Set Animation Target
+                let step = simulationSteps[p2Index];
+                if(step.targetState) {
+                    // Update state variables for animation function
+                    graphState.targetIS = step.targetState.isShift;
+                    graphState.targetLM = step.targetState.lmShift;
+                    document.getElementById('graph-status').innerText = "Resposta registrada. Veja o gráfico.";
+                }
+            } else {
+                btn.classList.remove('border-slate-100', 'text-slate-600');
+                btn.classList.add('border-red-500', 'bg-red-50', 'text-red-600');
+                document.getElementById('p2-feedback-text').innerHTML = "<span class='text-red-500 text-lg'>Incorreto.</span>";
+                // Still set target so user can see what happens
+                let step = simulationSteps[p2Index];
+                 if(step.targetState) {
+                    graphState.targetIS = step.targetState.isShift;
+                    graphState.targetLM = step.targetState.lmShift;
+                }
+            }
+        }
+
+        function nextP2Step() {
+            // Apply changes permanently before next step
+            if(graphState.targetIS !== undefined) graphState.isShift = graphState.targetIS;
+            if(graphState.targetLM !== undefined) graphState.lmShift = graphState.targetLM;
+            p2Index++;
+            loadP2Step();
+        }
+
+        function finishPhase2() {
+            hideAllScreens();
+            document.getElementById('screen-phase2-result').classList.remove('hidden');
+            document.getElementById('final-total-score').innerText = globalScore;
+            
+            const p2Msg = document.getElementById('p2-msg');
+            if(globalScore > 350) {
+                 p2Msg.innerText = "Desempenho Excelente. Você salvou a economia!";
+                 document.getElementById('p2-icon').innerText = "🚀";
+            } else {
+                 p2Msg.innerText = "Desempenho Razoável. Continue estudando o modelo.";
+            }
+        }
+
+        // --- GRAPH ENGINE ---
+        function initCanvas() {
+            canvas = document.getElementById('graphCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Robust resizing
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight || 400;
+            
+            width = canvas.width;
+            height = canvas.height;
+            origin = { x: 50, y: height - 50 };
+        }
+        
+        // Listen for window resize
+        window.addEventListener('resize', () => {
+             if(document.getElementById('screen-phase2-game').style.display !== 'none') {
+                 initCanvas();
+                 drawGraph();
+             }
+        });
+
+        function drawGraph() {
+            if(!ctx) return;
+            ctx.clearRect(0,0,width,height);
+            
+            // Grid
+            ctx.strokeStyle = "#f1f5f9"; ctx.lineWidth = 1;
+            for(let i=0; i<width; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,height); ctx.stroke(); }
+            for(let i=0; i<height; i+=40) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(width,i); ctx.stroke(); }
+
+            // Axes
+            ctx.beginPath();
+            ctx.moveTo(origin.x, 20); ctx.lineTo(origin.x, origin.y); ctx.lineTo(width-20, origin.y);
+            ctx.lineWidth = 2; ctx.strokeStyle = "#334155"; ctx.stroke();
+            
+            ctx.font = "bold 12px Poppins"; ctx.fillStyle = "#334155";
+            ctx.fillText("i (Juros)", origin.x+10, 30); ctx.fillText("Y (Renda)", width-60, origin.y-10);
+
+            if(graphState.animStage === 1) {
+                 ctx.fillStyle = "#f59e0b"; ctx.fillText("⚠️ Desequilíbrio!", 60, 60);
+            }
+
+            const shift = 40;
+            
+            // BP (Green)
+            ctx.strokeStyle = "#16a34a"; ctx.lineWidth = 3; ctx.beginPath();
+            let bpY = origin.y - 150;
+            if(graphState.bpType === 'horizontal') { ctx.moveTo(origin.x, bpY); ctx.lineTo(width, bpY); }
+            else if(graphState.bpType === 'vertical') { ctx.moveTo(width/2, 20); ctx.lineTo(width/2, origin.y); }
+            else if(graphState.bpType === 'flat') { ctx.moveTo(origin.x, bpY+50); ctx.lineTo(width, bpY-50); }
+            else { ctx.moveTo(width/2 - 60, origin.y); ctx.lineTo(width/2 + 60, 20); }
+            ctx.stroke();
+
+            // IS (Blue)
+            let isOff = graphState.isShift * shift;
+            ctx.strokeStyle = "#2563eb"; ctx.lineWidth = 3; ctx.beginPath();
+            ctx.moveTo(origin.x+50+isOff, origin.y-250); ctx.lineTo(origin.x+350+isOff, origin.y-50);
+            ctx.stroke(); 
+            // Ghost IS
+            if(graphState.isShift !== 0) {
+                 ctx.strokeStyle = "rgba(37, 99, 235, 0.2)"; ctx.setLineDash([5,5]); ctx.beginPath();
+                 ctx.moveTo(origin.x+50, origin.y-250); ctx.lineTo(origin.x+350, origin.y-50); ctx.stroke(); ctx.setLineDash([]);
+            }
+
+            // LM (Red)
+            let lmOff = graphState.lmShift * shift;
+            ctx.strokeStyle = "#dc2626"; ctx.lineWidth = 3; ctx.beginPath();
+            ctx.moveTo(origin.x+50+lmOff, origin.y-50); ctx.lineTo(origin.x+350+lmOff, origin.y-250);
+            ctx.stroke();
+            // Ghost LM
+             if(graphState.lmShift !== 0) {
+                 ctx.strokeStyle = "rgba(220, 38, 38, 0.2)"; ctx.setLineDash([5,5]); ctx.beginPath();
+                 ctx.moveTo(origin.x+50, origin.y-50); ctx.lineTo(origin.x+350, origin.y-250); ctx.stroke(); ctx.setLineDash([]);
+            }
+        }
+
+        function playStepAnimation() {
+            const statusLabel = document.getElementById('animation-status');
+            statusLabel.classList.remove('hidden');
+            
+            // Reset to start of step
+            let startIS = graphState.isShift;
+            let startLM = graphState.lmShift;
+            
+            // Animation logic: 1. Show Start -> 2. Show Target
+            graphState.animStage = 0;
+            drawGraph();
+
+            setTimeout(() => {
+                graphState.isShift = graphState.targetIS;
+                graphState.lmShift = graphState.targetLM;
+                graphState.animStage = 1;
+                drawGraph();
+            }, 800);
+
+            setTimeout(() => {
+                statusLabel.classList.add('hidden');
+                graphState.animStage = 0;
+                drawGraph();
+            }, 2000);
+        }
+
+        function getBpType(mob) {
+            if(mob === 'perfeita') return 'horizontal';
+            if(mob === 'nula') return 'vertical';
+            if(mob === 'imperfeita_alta') return 'flat';
+            return 'steep';
+        }
+
+        // --- MUNDELL-FLEMING LOGIC ENGINE (FULL) ---
+        function generateMundellFlemingLogic(regime, mobility, policy) {
+            let isFiscal = policy.includes('fiscal');
+            let isExp = policy.includes('exp');
+            
+            // Step 1: Shock
+            let s1 = {
+                question: `Política ${isFiscal?'Fiscal':'Monetária'} ${isExp?'Expansionista':'Contracionista'}. Qual curva se desloca inicialmente?`,
+                options: [
+                    {text: isFiscal?(isExp?"IS p/ Direita":"IS p/ Esquerda"):(isExp?"LM p/ Direita":"LM p/ Esquerda"), correct:true},
+                    {text: isFiscal?"LM se move":"IS se move", correct:false}
+                ],
+                targetState: { 
+                    isShift: isFiscal?(isExp?1:-1):0, 
+                    lmShift: !isFiscal?(isExp?1:-1):0 
+                }
+            };
+
+            // Calculate Intermediate Balance
+            let balance = 'neutral';
+            // Logic:
+            // Fiscal Exp: i up, Y up. 
+            //   Perf/High Mob: Capital Inflow (i) > Import (Y) -> Superavit
+            //   Low/Null Mob: Import (Y) > Capital Inflow -> Deficit
+            // Mon Exp: i down, Y up.
+            //   Any Mob: Capital Outflow + Import -> Deficit
+            
+            if(isFiscal) {
+                if(isExp) balance = (mobility === 'perfeita' || mobility === 'imperfeita_alta') ? 'superavit' : 'deficit';
+                else balance = (mobility === 'perfeita' || mobility === 'imperfeita_alta') ? 'deficit' : 'superavit';
+            } else {
+                if(isExp) balance = 'deficit'; // i down (outflow) + Y up (import)
+                else balance = 'superavit';
+            }
+
+            // Step 2: Balance Diagnosis
+            let s2 = {
+                question: "Analisando o novo ponto de equilíbrio interno, qual é a situação do Balanço de Pagamentos?",
+                options: [
+                    {text: balance === 'superavit' ? "Superávit (Entrada de Dólares)" : "Déficit (Saída de Dólares)", correct: true},
+                    {text: balance === 'superavit' ? "Déficit" : "Superávit", correct: false}
+                ],
+                targetState: s1.targetState // No visual change yet
+            };
+
+            // Step 3: Adjustment
+            let s3 = { options: [], targetState: {...s1.targetState} };
+            
+            if(regime === 'fixo') {
+                if(balance === 'superavit') {
+                    s3.question = "Superávit pressiona Dólar a cair (Apreciar). Como o BC mantém o Câmbio Fixo?";
+                    s3.options = [
+                        {text: "Compra Dólares -> Aumenta Reservas -> Expande Moeda (LM Direita)", correct: true},
+                        {text: "Vende Dólares -> Contrai Moeda", correct: false}
+                    ];
+                    // If LM was 0, goes to 1. If was -1, goes to 0.
+                    s3.targetState.lmShift += 1;
+                } else { // Deficit
+                    s3.question = "Déficit pressiona Dólar a subir (Depreciar). Como o BC mantém o Câmbio Fixo?";
+                    s3.options = [
+                        {text: "Vende Dólares -> Perde Reservas -> Contrai Moeda (LM Esquerda)", correct: true},
+                        {text: "Compra Dólares -> Expande Moeda", correct: false}
+                    ];
+                    s3.targetState.lmShift -= 1;
+                }
+            } else { // Flexivel
+                if(balance === 'superavit') {
+                    s3.question = "Superávit faz Dólar cair (Apreciação). Qual o efeito real?";
+                    s3.options = [
+                        {text: "Exportações Caem (Competitividade cai) -> IS volta p/ Esquerda", correct: true},
+                        {text: "Exportações Sobem -> IS vai p/ Direita", correct: false}
+                    ];
+                    s3.targetState.isShift -= 1;
+                } else { // Deficit
+                    s3.question = "Déficit faz Dólar subir (Depreciação). Qual o efeito real?";
+                    s3.options = [
+                        {text: "Exportações Sobem (Competitividade sobe) -> IS avança p/ Direita", correct: true},
+                        {text: "Exportações Caem -> IS volta", correct: false}
+                    ];
+                    s3.targetState.isShift += 1;
+                    
+                    // Special Case: Fiscal Exp + Flex + Low Mob (Q6iv from your list)
+                    // Fiscal Exp (IS+1) -> Deficit -> Deprecia -> IS+1 again -> IS+2
+                    if(isFiscal && isExp && mobility === 'imperfeita_baixa') {
+                        s3.targetState.isShift += 0.5; // Visual extra push
+                    }
+                }
+            }
+
+            return [s1, s2, s3];
+        }
+
+    </script>
+</body>
+</html>            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
         }
         .panel-card {
             background: rgba(255, 255, 255, 0.95);
